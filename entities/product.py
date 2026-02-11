@@ -12,4 +12,4 @@ class Product(BaseModel):
     price: Annotated[Decimal, Field(ge=0)]
     url: Annotated[str, AfterValidator(is_real_url)]
     available: bool
-    
+

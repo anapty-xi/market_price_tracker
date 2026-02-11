@@ -1,6 +1,6 @@
-from typing import Protocol
+from usecases.user.user_protocol import UserProtocol
 
-class UserProtocol(Protocol):
+class UserDbGateway(UserProtocol):
     def delete_product(self, tg_id: str, product_url: str) -> None:
         pass
     def add_product(self, tg_id: str, product_url: str) -> None:

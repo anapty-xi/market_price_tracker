@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from product import Product
+from entities.product import Product
 
 class User(BaseModel):
     tg_id: str

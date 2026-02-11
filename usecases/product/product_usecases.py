@@ -1,4 +1,4 @@
-from product_protocol import ProductProtocol
+from usecases.product.product_protocol import ProductProtocol
 from entities.product import Product
 from decimal import Decimal
 from datetime import date 
@@ -17,7 +17,7 @@ class GetProductsInformation(BaseUsecase):
             if 'error' in product:
                 products_entities.append(Product(
                     name='ERROR',
-                    price=1,
+                    price=Decimal(1),
                     url=product['url'],
                     available=False
                 ))
