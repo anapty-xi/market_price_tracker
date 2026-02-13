@@ -3,20 +3,20 @@ from fastapi import Header
 
 from usecases.user import user_usecases
 from usecases.product import product_usecases
-from infrastructure import user_db_gateway, product_infrastructure
+from infrastructure import user_infrastructure, product_infrastructure
 
-def user_tg_id(tg_id: Annotated[int, Header('X-telegram-id')]) -> int:
-    return tg_id
+def user_tg_id(x_telegram_id: Annotated[int, Header()]) -> int:
+    return x_telegram_id
 
 
 
 '''заивисимости для users_routs (pl - products list)'''
 
 def get_pl_usecase() -> user_usecases.GetProductList:
-    return user_usecases.GetProductList(user_db_gateway.UserDbGateway)
+    return user_usecases.GetProductList(user_infrastructure.UserDbGateway)
 
 def pl_operations_usecase() -> user_usecases.ProductListOperations:
-    return user_usecases.ProductListOperations(user_db_gateway.UserDbGateway)
+    return user_usecases.ProductListOperations(user_infrastructure.UserDbGateway)
 
 
 '''зависимости для products_routs'''
