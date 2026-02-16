@@ -4,6 +4,7 @@ from infrastructure.db.tables import Base, Product, User
 
 ENGINE = None
 async_session = None
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

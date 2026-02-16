@@ -5,7 +5,7 @@ from usecases.user import user_usecases
 from usecases.product import product_usecases
 from infrastructure import user_infrastructure, product_infrastructure
 
-def user_tg_id(x_telegram_id: Annotated[int, Header()]) -> int:
+def user_tg_id(x_telegram_id: Annotated[str, Header()]) -> str:
     return x_telegram_id
 
 

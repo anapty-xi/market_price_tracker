@@ -8,8 +8,8 @@ def is_real_url(url):
     raise ValidationError(f'{url} is not correct ymarket url')
 
 class Product(BaseModel):
-    name: str
-    price: Annotated[Decimal, Field(ge=0)]
+    name: str | None = None
+    price: Annotated[Decimal, Field(ge=0)] | None = None
     url: Annotated[str, AfterValidator(is_real_url)]
-    available: bool
+    available: bool | None = None
 
