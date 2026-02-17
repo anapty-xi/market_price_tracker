@@ -15,6 +15,11 @@ router = APIRouter()
 async def add_product_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
                               product_url: Annotated[str, Body()],
                               usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
+    '''
+    Точка для добавления товара в список отслеживания юзера. Если юзера нет в базе - он создается 
+    и ему присваивается товар. Если у юзера уже есть этот товар - возвращает ошибку 400
+    '''
+
     try:
         await usecase.execute(tg_id, product_url, add=True)
         logger.success(f'product {product_url} added to {tg_id} product list')
@@ -28,9 +33,30 @@ async def add_product_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg
         logger.critical(f'unexpected error while adding product {product_url} to {tg_id} product list')
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='unexpected error, plese, try again') 
 
+
+@router.delete('/products')
+async def delete_post_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
+                              product_url: Annotated[str, Body()],
+                              usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
+    '''
+    Точка для получения удаления юзера. Проверяет есть ли юзер товар из запроса в базе, если чего то нет - возвращает ошибку 404
+    '''
+    try:
+        await usecase.execute(tg_id, product_url, delete=True)
+        logger.success(f'product {product_url} deleted from {tg_id} product list')
+        return {'deleted': f'{product_url}'}
+    
+    except ValueError:
+        logger.error(f'user {tg_id} or product {product_url} not found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User or product not exists')
+    
+
 @router.get('/products')
 async def get_user_products_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
                                  usecase: Annotated[GetProductList, Depends(dependencies.get_pl_usecase)]) -> User:
+    '''
+    Точка для получения списка товаров юзера. Проверяет есть ли юзер в базе, если нет - возвращает ошибку 404
+    '''
     try:
         user = await usecase.execute(tg_id)
         logger.success(f'user {tg_id} products list returned')
@@ -40,15 +66,4 @@ async def get_user_products_list(tg_id: Annotated[int, Depends(dependencies.user
         logger.error(f'user {tg_id} not found')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
 
-@router.delete('/products')
-async def delete_post_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
-                              product_url: Annotated[str, Body()],
-                              usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
-    try:
-        await usecase.execute(tg_id, product_url, delete=True)
-        logger.success(f'product {product_url} deleted from {tg_id} product list')
-        return {'deleted': f'{product_url}'}
-    
-    except ValueError:
-        logger.error(f'user {tg_id} or product {product_url} not found')
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User or product not exists')
+

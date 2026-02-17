@@ -10,8 +10,16 @@ class BaseUsecase:
 
 class ProductListOperations(BaseUsecase):
     async def execute(self, tg_id: str, product_url: str, delete: bool = False, add: bool = False) -> None | Exception:
+        '''
+        Позволяет удалять или добавлять продукты в список отслеживания пользователя. Требует один из аргументов (delete, add) в значении True, инче выкидывает ошибку.
+        При удалении проверяет существет ли юзер и товар - если нет
+        выкидывает ошибку. При добавлении проверяет существет ли юзер и нет ли такого же товара у юзера. Если юзера нет - создает его.
+        Если товар уже был добавлен - выкидывает ошибку.
+        '''
         if not delete and not add:
             raise ValueError('Either delete or add must be True')
+        elif delete and add:
+            raise ValueError('Only one of delete or add must be True')
         
         if delete:
             if await self.infrastructure.is_user_exists(tg_id):
@@ -30,7 +38,10 @@ class ProductListOperations(BaseUsecase):
             
 class GetProductList(BaseUsecase):
     async def execute(self, tg_id: str) -> User | Exception:
-
+        '''
+        Возвращает сущность User с заполненным списком отслеживаемых товаров. Сущности Product в списке юзера имеют name, price, available = None
+        Если юзера нет - выкидывает ошибку.
+        '''
         if await self.infrastructure.is_user_exists(tg_id):
             products_list = await self.infrastructure.get_tracking_list(tg_id)
         else:
