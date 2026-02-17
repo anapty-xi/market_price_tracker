@@ -24,5 +24,6 @@ async def create_engine(db_data) -> None:
 
 async def shut_down_engine() -> None:
     global ENGINE
-    await ENGINE.dispose()
-    logger.info('engine shut down')
+    if not ENGINE:
+        await ENGINE.dispose()
+        logger.info('engine shut down')

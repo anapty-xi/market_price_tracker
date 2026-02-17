@@ -1,32 +1,44 @@
-from usecases.product.product_protocol import ProductProtocol
+from usecases.product.product_protocol import ProductDBProtocol, ProductParserProtocol
 from entities.product import Product
 from decimal import Decimal
 from datetime import date 
 
 class BaseUsecase:
-    def __init__(self, infrastructure: ProductProtocol):
-        self.infrastructure = infrastructure()
+    def __init__(self, db_infrastructure: ProductDBProtocol, parser_infrastructure: ProductParserProtocol | None = None):
+        self.db_infrastructure = db_infrastructure()
+        if self.parser_infrastructure:
+            self.parser_infrastructure = parser_infrastructure()
+        else:
+            self.parser_infrastructure = None
 
-
-class GetProductsInformation(BaseUsecase):
-    async def execute(self, products_urls: list[str]) -> list[Product]:
-        products_data = await self.infrastructure.get_products_data(products_urls)
-
+class ParseProductsData(BaseUsecase):
+    async def execute(self, tg_id: str) -> list[Product]:
+        if not await self.db_infrastructure.is_user_exist(tg_id):
+            raise ValueError('User does not exist')
+        products_urls = await self.db_infrastructure.get_tracking_list(tg_id)
+        if products_urls:
+            products_data = await self.parser_infrastructure.parse_products_data(products_urls)
+        else:
+            return []
+        
         products_entities = []
         for product in products_data:
-            if 'error' in product:
-                products_entities.append(Product(
-                    name='ERROR',
-                    price=Decimal(1),
-                    url=product['url'],
-                    available=False
-                ))
-            else:
-                products_entities.append(Product(**product))
-        
+            products_entities.append(Product(**product))
+
         return products_entities
     
 
-class GetProductPriceChange(BaseUsecase):
+class GetProductPriceTrack(BaseUsecase):
     async def execute(self, product_url: str) -> dict[date, Decimal]:
-        return await self.infrastructure.get_product_price_change(product_url)
+        return await self.db_infrastructure.get_product_price_track(product_url)
+    
+
+class ParseAllProductsForDB(BaseUsecase):
+    async def execute(self) -> None:
+        products_urls = await self.db_infrastructure.get_tracking_list(tg_id=None)
+        if products_urls:
+            products_data = await self.parser_infrastructure.parse_products_data(products_urls)
+        else:
+            return None
+        
+        await self.db_infrastructure.save_new_price_data(products_data)

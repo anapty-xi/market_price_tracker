@@ -2,27 +2,36 @@ from fastapi import APIRouter, HTTPException, status, Depends, Body
 from typing import Annotated
 from datetime import date
 from decimal import Decimal
+from loguru import logger
 
 from api import dependencies
 from entities.product import Product
-from usecases.product.product_usecases import GetProductPriceChange, GetProductsInformation
+from usecases.product.product_usecases import ParseProductsData, ParseAllProductsForDB, GetProductPriceTrack
 
 router = APIRouter()
 
 
-@router.get('/products/card-info')
-async def get_products_info(tg_id: Annotated[int, Depends(dependencies.user_tg_id)],
-                            usecase: Annotated[GetProductsInformation, Depends(dependencies.get_products_info_usecase)]) -> list[Product]:
-    products = await usecase.execute(tg_id)
-    return products
-
-@router.get('products/price-track')
-async def get_price_track(tg_id: Annotated[int, Depends(dependencies.user_tg_id)],
-                          usecase: Annotated[GetProductPriceChange, Depends(dependencies.product_price_changes_usecase)],
-                          product_url: Annotated[str, Body()]) -> dict[date, Decimal]:
+@router.get('products_data')
+async def parse_products_data(tg_id: Annotated[str, Depends(dependencies.user_tg_id)],
+                              usecase: Annotated[ParseProductsData, Depends(dependencies.parse_product_data_usecase)]) -> list[Product]:
     try:
-        track = await usecase.execute(product_url)
-        return track
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-                            detail='DB error')
+        products_entities = await usecase.execute(tg_id)
+        logger.success(f'User {tg_id} parsed products data')
+        return products_entities
+    
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User no found')
+    
+
+
+@router.get('price_track')
+async def get_product_price_track(product_url: str,
+                                  usecase: Annotated[GetProductPriceTrack, Depends(dependencies.get_products_price_track)]) -> dict[date, Decimal]:
+    try:
+        price_track = await usecase.execute(product_url)
+        logger.success(f'Product {product_url} price track returned')
+        return price_track
+    
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Product no found')
+

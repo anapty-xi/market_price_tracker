@@ -8,7 +8,7 @@ class BaseUsecase:
         self.infrastructure = infrastructure()
 
 
-class ProductListOperations(BaseUsecase):
+class ProductListOperations(UserProtocol, BaseUsecase):
     async def execute(self, tg_id: str, product_url: str, delete: bool = False, add: bool = False) -> None | Exception:
         '''
         Позволяет удалять или добавлять продукты в список отслеживания пользователя. Требует один из аргументов (delete, add) в значении True, инче выкидывает ошибку.
@@ -36,7 +36,7 @@ class ProductListOperations(BaseUsecase):
            
 
             
-class GetProductList(BaseUsecase):
+class GetProductList(UserProtocol, BaseUsecase):
     async def execute(self, tg_id: str) -> User | Exception:
         '''
         Возвращает сущность User с заполненным списком отслеживаемых товаров. Сущности Product в списке юзера имеют name, price, available = None
