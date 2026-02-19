@@ -6,7 +6,7 @@ from loguru import logger
 
 from api import dependencies
 from entities.product import Product
-from usecases.product.product_usecases import ParseProductsData, ParseAllProductsForDB, GetProductPriceTrack
+from usecases.product.product_usecases import ParseProductsData, GetProductPriceTrack
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ async def parse_products_data(tg_id: Annotated[str, Depends(dependencies.user_tg
     
     except ValueError:
         logger.error('User not found')
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User no found')
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
     
 
 

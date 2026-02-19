@@ -11,7 +11,7 @@ from util.exeptions import UnexpectedDBExeption
 router = APIRouter()
 
 
-@router.post('/product_list')
+@router.post('/products_list')
 async def add_product_in_list(tg_id: Annotated[str, Depends(dependencies.user_tg_id)], 
                               product_url: Annotated[str, Body()],
                               usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
@@ -34,7 +34,7 @@ async def add_product_in_list(tg_id: Annotated[str, Depends(dependencies.user_tg
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='unexpected error, plese, try again') 
 
 
-@router.delete('/product_list')
+@router.delete('/products_list')
 async def delete_post_in_list(tg_id: Annotated[str, Depends(dependencies.user_tg_id)], 
                               product_url: Annotated[str, Body()],
                               usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
@@ -51,7 +51,7 @@ async def delete_post_in_list(tg_id: Annotated[str, Depends(dependencies.user_tg
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User or product not exists')
     
 
-@router.get('/product_list')
+@router.get('/products_list')
 async def get_user_products_list(tg_id: Annotated[str, Depends(dependencies.user_tg_id)], 
                                  usecase: Annotated[GetProductList, Depends(dependencies.get_pl_usecase)]) -> User:
     '''
