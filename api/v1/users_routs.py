@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post('/product_list')
-async def add_product_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
+async def add_product_in_list(tg_id: Annotated[str, Depends(dependencies.user_tg_id)], 
                               product_url: Annotated[str, Body()],
                               usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
     '''
@@ -35,7 +35,7 @@ async def add_product_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg
 
 
 @router.delete('/product_list')
-async def delete_post_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
+async def delete_post_in_list(tg_id: Annotated[str, Depends(dependencies.user_tg_id)], 
                               product_url: Annotated[str, Body()],
                               usecase: Annotated[ProductListOperations, Depends(dependencies.pl_operations_usecase)]) -> dict[str, str]:
     '''
@@ -52,8 +52,8 @@ async def delete_post_in_list(tg_id: Annotated[int, Depends(dependencies.user_tg
     
 
 @router.get('/product_list')
-async def get_user_products_list(tg_id: Annotated[int, Depends(dependencies.user_tg_id)], 
-                                 usecase: Annotated[GetProductList, Depends(dependencies.get_pl_usecase)]) -> User | Exception:
+async def get_user_products_list(tg_id: Annotated[str, Depends(dependencies.user_tg_id)], 
+                                 usecase: Annotated[GetProductList, Depends(dependencies.get_pl_usecase)]) -> User:
     '''
     Точка для получения списка товаров юзера. Проверяет есть ли юзер в базе, если нет - возвращает ошибку 404
     '''

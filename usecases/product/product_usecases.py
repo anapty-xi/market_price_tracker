@@ -6,14 +6,11 @@ from datetime import date
 class BaseUsecase:
     def __init__(self, db_infrastructure: ProductDBProtocol, parser_infrastructure: ProductParserProtocol | None = None):
         self.db_infrastructure = db_infrastructure()
-        if self.parser_infrastructure:
-            self.parser_infrastructure = parser_infrastructure()
-        else:
-            self.parser_infrastructure = None
+        self.parser_infrastructure = parser_infrastructure()
 
 class ParseProductsData(BaseUsecase):
     async def execute(self, tg_id: str) -> list[Product]:
-        if not await self.db_infrastructure.is_user_exist(tg_id):
+        if not await self.db_infrastructure.is_user_exists(tg_id):
             raise ValueError('User does not exist')
         products_urls = await self.db_infrastructure.get_tracking_list(tg_id)
         if products_urls:

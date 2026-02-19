@@ -11,7 +11,7 @@ from usecases.product.product_usecases import ParseProductsData, ParseAllProduct
 router = APIRouter()
 
 
-@router.get('products_data')
+@router.get('/products_data')
 async def parse_products_data(tg_id: Annotated[str, Depends(dependencies.user_tg_id)],
                               usecase: Annotated[ParseProductsData, Depends(dependencies.parse_product_data_usecase)]) -> list[Product]:
     try:
@@ -20,11 +20,12 @@ async def parse_products_data(tg_id: Annotated[str, Depends(dependencies.user_tg
         return products_entities
     
     except ValueError:
+        logger.error('User not found')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User no found')
     
 
 
-@router.get('price_track')
+@router.get('/price_track')
 async def get_product_price_track(product_url: str,
                                   usecase: Annotated[GetProductPriceTrack, Depends(dependencies.get_products_price_track)]) -> dict[date, Decimal]:
     try:
